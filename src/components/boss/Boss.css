@@ -1,0 +1,67 @@
+.boss {
+    background-image: url('../../imgs/boss/Sprite.png');
+    margin-top: 355px;
+    position: fixed;
+    right: 1270px;
+    z-index: 2;
+}
+
+@keyframes bossStopped {
+    0% {
+        background-position-x: -2880px;
+    }
+
+    100% {
+        background-position-x: 0px;
+    }
+}
+
+@keyframes bossAppear {
+    0% {
+        background-position-x: -12672px;
+    }
+
+    100% {
+        background-position-x: 0px;
+    }
+}
+
+@keyframes bossDeath {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: -12672px;
+    }
+}
+
+@keyframes bossWalk {
+    0% {
+        background-position-x: -6336px;
+    }
+
+    100% {
+        background-position-x: 0px;
+    }
+}
+
+@keyframes bossHurt {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: -2880px;;
+    }
+}
+
+@keyframes bossAttack {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: -8064px;
+    }
+}

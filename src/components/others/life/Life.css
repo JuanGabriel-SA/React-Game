@@ -1,0 +1,9 @@
+.life-component {
+    width: 40px;
+    height: 40px;
+    position: relative;
+    background-image: url('../../../imgs/heart/Heart.png');
+    background-size: cover;
+    display: inline-block;
+    margin: 5px;
+}
