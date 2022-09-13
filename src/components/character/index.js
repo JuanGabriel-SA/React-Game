@@ -13,9 +13,11 @@ import SpecialAttack from '../../imgs/character/SpecialAttack.png';
 import WalkSprite from '../../imgs/character/Walk.png';
 import { characterIsAttacking, characterIsNotAttacking } from '../../redux/actions/CharacterAttack.actions';
 import { moveCharacter } from '../../redux/actions/CharacterPosition.actions';
+import { consumeStamina, resetStamina } from '../../redux/actions/CharacterStamina.actions';
 import { specialAttackEffects } from '../../redux/actions/SpecialAttack.actions';
 import Sounds from '../../songs/character/Sounds.mp3';
 import { getRandom } from '../../utils/getRandom';
+import useWindowDimensions from '../../utils/getWindowSize';
 import './Character.css';
 
 const Character = ({ onDamage, damage }) => {
@@ -34,6 +36,7 @@ const Character = ({ onDamage, damage }) => {
     const [jumping, setJumping] = useState(false);
     const [fall, setFall] = useState(false);
     const [effectPosition, setEffectPosition] = useState(0);
+    const viewSize = useWindowDimensions();
     const dispatch = useDispatch();
     const [playSound, { stop }] = useSound(Sounds, {
         volume: 0.1,
@@ -53,13 +56,14 @@ const Character = ({ onDamage, damage }) => {
         }
     });
     const state = useSelector((state) => state);
-
+    const stamina = state.characterStamina;
     useEffect(() => {
         setPosition({ x: 730, y: 0 })
     }, [])
 
     useEffect(() => {
         window.onkeydown = ((e) => {
+            console.log(stamina)
             if (e.key == 'ArrowLeft' && !state.specialAttack) {
                 setRotate('180deg');
                 setMoveLeft(true);
@@ -70,7 +74,7 @@ const Character = ({ onDamage, damage }) => {
                 setJumping(true);
             }
 
-            if (e.key == 'd' && !e.repeat && !state.specialAttack) {
+            if (e.key == 'd' && !e.repeat && !state.specialAttack && stamina > 120) {
                 setIsDashing(true);
             }
 
@@ -86,11 +90,11 @@ const Character = ({ onDamage, damage }) => {
                     setSpecialAttack(true);
                 }, 1000)
             }
-            if (e.key == 'q' && !e.repeat && !state.specialAttack) {
+            if (e.key == 'q' && !e.repeat && !state.specialAttack && stamina > 25) {
                 setLightAttack(true);
             }
 
-            if (e.key == 'e' && !e.repeat && !state.specialAttack) {
+            if (e.key == 'e' && !e.repeat && !state.specialAttack && stamina > 80) {
                 setHeavyAttack(true);
             }
         })
@@ -105,7 +109,7 @@ const Character = ({ onDamage, damage }) => {
                 setMoveRight(false);
             }
         })
-    }, [lightAttack, heavyAttack, position, specialAttack, specialAttackCount, state.specialAttack, playSound, isDashing]);
+    }, [lightAttack, heavyAttack, position, specialAttack, specialAttackCount, state.specialAttack, playSound, isDashing, stamina]);
 
     useEffect(() => {
         if (specialAttack) {
@@ -147,20 +151,24 @@ const Character = ({ onDamage, damage }) => {
         }
     }, [specialAttack, specialAttackCount])
 
+    //Personagem caindo...
     useEffect(() => {
+        //Garante que o personagem não fique dentro do chão...
         if (y > 0 && !specialAttack)
             setY(0)
         if (y < 0 && !jumping && !specialAttack) {
             const jumpInterval = setInterval(() => {
+                //Personagem cai mais devagar enquanto está atacando no ar...
                 if (heavyAttack || lightAttack || isDashing)
                     setY(prevState => prevState + 1)
                 else
-                    setY(prevState => prevState + 5)
+                    setY(prevState => prevState + 7)
             }, 10)
             return () => clearInterval(jumpInterval)
         }
     }, [y, jumping])
 
+    //Salto do personagem...
     useEffect(() => {
         if (jumping && !isDashing) {
             const jumpInterval = setInterval(() => {
@@ -169,7 +177,7 @@ const Character = ({ onDamage, damage }) => {
 
             setTimeout(() => {
                 setJumping(false);
-            }, 350)
+            }, 550)
 
             return () => clearInterval(jumpInterval)
         }
@@ -185,6 +193,7 @@ const Character = ({ onDamage, damage }) => {
     useEffect(() => {
         setWalking(false);
         if (isDashing) {
+            loseStamina(120);
             dispatch(characterIsAttacking({ isAttacking: true, type: 'dash' }));
             playSound({ id: 'dash' })
             const dashInterval = setInterval(() => {
@@ -225,6 +234,7 @@ const Character = ({ onDamage, damage }) => {
     useEffect(() => {
         setWalking(false);
         if (lightAttack && !heavyAttack && !isDashing) {
+            loseStamina(25);
             dispatch(characterIsAttacking({ isAttacking: true, type: 'light' }));
             playSound({ id: 'lightAttack' })
             setTimeout(() => {
@@ -243,6 +253,7 @@ const Character = ({ onDamage, damage }) => {
     useEffect(() => {
         setWalking(false);
         if (heavyAttack && !lightAttack && !isDashing) {
+            loseStamina(80)
             dispatch(characterIsAttacking({ isAttacking: true, type: 'heavy' }));
             playSound({ id: 'heavyAttack' })
             setTimeout(() => {
@@ -254,6 +265,19 @@ const Character = ({ onDamage, damage }) => {
             setHeavyAttack(false)
         }
     }, [heavyAttack])
+
+    function loseStamina(value) {
+       
+        if (stamina - value > 0)
+            dispatch(consumeStamina(value));
+    }
+
+    useEffect(() => {
+        const staminaInterval = setInterval(() => {
+            dispatch(resetStamina());
+        }, 1000);
+        return () => clearInterval(staminaInterval)
+    }, [heavyAttack, lightAttack, isDashing])
 
     useEffect(() => {
 
@@ -298,10 +322,12 @@ const Character = ({ onDamage, damage }) => {
 
     useEffect(() => {
         setPosition({ x: x, y: y, rotation: rotate });
-        if (x > 1260) {
+        let screenWidth = viewSize.width;
+      
+        if (x > screenWidth - 200) {
             setX(prevState => prevState - 1)
         }
-        if (x < 170)
+        if (x < -100)
             setX(prevState => prevState + 1)
     }, [y, x, rotate])
 
@@ -317,7 +343,7 @@ const Character = ({ onDamage, damage }) => {
     }, [y, specialAttack])
 
     useEffect(() => {
-        if (fall) 
+        if (fall)
             playSound({ id: 'fall' })
     }, [fall])
 
@@ -390,12 +416,12 @@ const Character = ({ onDamage, damage }) => {
     function animateEffect() {
         if (jumping && !specialAttack) {
             return {
-                animation: 'jumpEffect 0.4s steps(15) infinite'
+                animation: 'jumpEffect 0.6s steps(15)'
             }
         }
         if (fall) {
             return {
-                animation: 'fallEffect 0.4s steps(15) infinite'
+                animation: 'fallEffect 0.6s steps(15) infinite'
             }
         }
     }

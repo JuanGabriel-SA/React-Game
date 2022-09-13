@@ -1,12 +1,12 @@
 import { motion, useAnimation } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import useSound from 'use-sound';
 import './App.css';
-import Boss from './components/boss';
 import Character from './components/character';
 import Heart from './components/others/heart';
-import Life from './components/others/life';
 import Zumbi from './components/zombie';
+import GeralSounds from './songs/others/stamina/Danger.wav';
 
 function App() {
   const [enemyCount, setEnemyCount] = useState(0);
@@ -17,23 +17,24 @@ function App() {
   const animateSpecialIcon = useAnimation();
   const dispatch = useDispatch();
   const state = useSelector((state) => state);
+  const [playSound, properties] = useSound(GeralSounds, { volume: 0.03 });
 
   useEffect(() => {
     if (state.specialAttack)
       animateSpecialAttack()
-  
+
   }, [state.specialAttack])
 
   useEffect(() => {
-    if (life <= 5) {
+    if (life <= 999 && heartCount < 1) {
       const createHearts = setInterval(() => {
         setHeartCount(prevState => prevState + 1)
 
-      }, 3000)
+      }, 1000)
       return () => clearInterval(createHearts)
     }
 
-  }, [life])
+  }, [life, heartCount])
 
   useEffect(() => {
     let aux = [...currentEnemy];
@@ -44,15 +45,6 @@ function App() {
     }
 
   }, [enemyCount])
-
-
-  function getLifeBar() {
-    let aux = [];
-    for (let i = 0; i < life; i++) {
-      aux.push(<Life />)
-    }
-    return aux;
-  }
 
   function getHearts() {
     let aux = [];
@@ -77,12 +69,47 @@ function App() {
   }
 
   useEffect(() => {
-    //console.log(state.characterPosition)
-  }, [state.characterPosition])
+    if (state.characterStamina < 30) {
+      playSound();
+      const interval = setInterval(() => {
+        playSound();
+      }, 500)
+
+      return () => clearInterval(interval);
+    }
+  }, [state.characterStamina])
   return (
     <div className="game-content">
+      <div className='life-bar' style={{ opacity: state.specialAttack ? 0.4 : 1 }}>
+        <div className='life-bar-icon' />
+        <div className='life-bar-out' />
+        <div className='life-bar-in' style={{
+          width: life * 27.1
+        }} />
+      </div>
+      <div className='vigor-bar-out' style={{
+        opacity: state.specialAttack ? 0.4 : 1,
+      }}>
+      </div>
+      <motion.div className='vigor-bar-in'
+          style={{
+            width: state.characterStamina
+          }}
+          /*Se o personagem não tiver stamina o suficiente para executar nenhum ataque,
+          é realizada a animação...*/
+          animate={state.characterStamina < 30 ?
+            {
+              opacity: [0, 1],
+              backgroundColor: 'red',
+              transition: {
+                repeat: Infinity,
+                ease: 'linear'
+              }
+            } :
+            { opacity: 1 }}
+        />
       <Character damage={damage} onDamage={() => setLife(prevState => prevState - 1)} />
-      <Boss isAttacking={(e) => setDamage(e)} onDeath={() => setEnemyCount(prevState => prevState + 1)} />
+      {/* <Boss isAttacking={(e) => setDamage(e)} onDeath={() => setEnemyCount(prevState => prevState + 1)} /> */}
       <motion.h1
         initial={{ opacity: 0 }}
         animate={animateSpecialIcon}
@@ -92,12 +119,6 @@ function App() {
       <div className='game-background' style={{
         opacity: state.specialAttack && '0'
       }}>
-        <div className='life-bar' style={{ opacity: state.specialAttack ? 0.4 : 1 }}>
-          <div className='life-bar-out'/>
-          <div className='life-bar-in'style={{
-            width: life * 27.1
-          }} />
-        </div>
         {getHearts()}
       </div>
     </div>

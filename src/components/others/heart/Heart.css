@@ -1,6 +1,7 @@
 .heart-component {
     width: 40px;
     height: 40px;
+    right: 1270px;
     position: absolute;
     background-image: url('../../../imgs/heart/Heart.png');
     background-size: cover;

@@ -1,14 +1,14 @@
 .character {
-    margin-top: 490px;
     position: fixed;
     background-size: cover;
     z-index: 3;
+    top: 70vh;
     /* background-image: url('../../imgs/character/EndSpecialAttack.png'); */
 }
 
 .smoke-effect {
     position: fixed;
-    margin-top: 625px;
+   top: 87vh;
     left: 30px;
     background-repeat: repeat-x;
     z-index: 2;

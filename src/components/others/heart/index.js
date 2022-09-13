@@ -2,7 +2,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import useSound from 'use-sound';
-import ConsumedSound from '../../../songs/others/heart/Consumed.mp3';
+import ConsumedSound from '../../../songs/others/heart/Consumed.wav';
 import { verifyColision } from '../../../utils/colisionDetection';
 import './Heart.css';
 const Heart = ({ onConsume }) => {
@@ -11,12 +11,11 @@ const Heart = ({ onConsume }) => {
     const [colision, setColision] = useState(false);
     const rotateAnimation = useAnimation();
     const state = useSelector((state) => state);
-    const characterPosition = state.characterPosition;
-    const [playSound, properties] = useSound(ConsumedSound);
+    const [playSound, properties] = useSound(ConsumedSound, {volume: 0.1});
 
     function generatePosition() {
         //Se a posição do coração não for par, gere outra posição...
-        let position = Math.floor(Math.random() * (402 - (-402) + 1)) + (-402);
+        let position = Math.floor(Math.random() * (1250 - (170) + 1)) + (170);
         if (position % 2 == 0) {
             return position;
         }
@@ -35,10 +34,12 @@ const Heart = ({ onConsume }) => {
     }, [positionX])
 
     useEffect(() => {
-        if (verifyColision(positionX, characterPosition, 46)) {
+        let position = {x: positionX, y: 0};
+    
+        if (verifyColision(position, state.characterPosition, 80, 80)) {
             setColision(true);
         }
-    }, [characterPosition])
+    }, [state.characterPosition])
 
     async function consume() {
         playSound();

@@ -103,7 +103,7 @@ const Boss = ({ onDeath, onAttack, isAttacking }) => {
         if (x > state.characterPosition.x && !state.specialAttack && life > 0)
             setRotate('0deg')
         //Quando o inimigo encostar no personagem, ele para e ataca...
-        console.log(state.characterPosition, position)
+
         let colisionMarginX = 0;
         if (verifyColision(position, state.characterPosition, 200, 120) && life > 0 && !state.specialAttack) {
             setAttack(true);
