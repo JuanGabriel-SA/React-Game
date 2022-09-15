@@ -1,0 +1,128 @@
+.character {
+    position: fixed;
+    background-size: cover;
+    z-index: 3;
+    top: 70vh;
+    /* background-image: url('../../imgs/character/EndSpecialAttack.png'); */
+}
+
+.smoke-effect {
+    position: fixed;
+   top: 87vh;
+    left: 30px;
+    background-repeat: repeat-x;
+    z-index: 2;
+    width: 253px;
+    height: 253px;
+    background-image: url(../../imgs/character/SmokeEffect.png);
+}
+
+@keyframes jumpEffect {
+    0% {
+        background-position-x: 3800px;
+    }
+
+    100% {
+        background-position-x: 0px;
+    }
+}
+
+@keyframes fallEffect {
+    0% {
+        background-position-x: 3800px;
+    }
+
+    100% {
+        background-position-x: 0px;
+    }
+}
+
+@keyframes characterWalk {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: 2400px;
+    }
+}
+
+@keyframes endSpecialAttack {
+    0% {
+        background-position-x: 2100px;
+    }
+
+    100% {
+        background-position-x: 0px;
+    }
+}
+
+@keyframes characterJump {
+    0% {
+        background-position-x: 600px;
+    }
+
+    100% {
+        background-position-x: 0px;
+    }
+}
+
+@keyframes characterFall {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: 600px;
+    }
+}
+
+@keyframes characterStopped {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: 2400px;
+    }
+}
+
+@keyframes characterSpecialAttack {
+    0% {
+        background-position-x: 300px;
+    }
+
+    100% {
+        background-position-x: 3900px;
+    }
+}
+
+@keyframes characterAttackLight {
+    0% {
+        background-position-x: 1800px;
+    }
+
+    100% {
+        background-position-x: 0px;
+    }
+}
+
+@keyframes characterAttackHeavy {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: 1800px;
+    }
+}
+
+@keyframes characterHurt {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: 1200px;
+    }
+}

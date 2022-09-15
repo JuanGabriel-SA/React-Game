@@ -1,0 +1,64 @@
+.zombie-body {
+    position: absolute;
+    background-size: cover;
+    bottom: 45px;
+}
+.zombie-content {
+    background-size: cover;
+}
+
+.health-zombie {
+    background-color: rgb(167, 0, 0);
+    height: 5px;
+    margin-left: 15px;
+}
+
+@keyframes walk {
+    0% {
+        background-position-x: -2%;
+    }
+
+    100% {
+        background-position-x: 118%;
+    }
+}
+
+@keyframes stopped {
+    0% {
+        background-position-x: -5%;
+    }
+
+    100% {
+        background-position-x: 129%;
+    }
+}
+
+@keyframes attack {
+    0% {
+        background-position-x: -3%;
+    }
+
+    100% {
+        background-position-x: 117%;
+    }
+}
+
+@keyframes death {
+    0% {
+        background-position-x: 0%;
+    }
+
+    100% {
+        background-position-x: 120%;
+    }
+}
+
+@keyframes hurt {
+    0% {
+        background-position-x: -15%;
+    }
+
+    100% {
+        background-position-x: 180%;
+    }
+}
