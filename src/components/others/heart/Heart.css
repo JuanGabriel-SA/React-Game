@@ -1,9 +1,9 @@
 .heart-component {
     width: 40px;
     height: 40px;
-    right: 1270px;
+    right: 1570px;
     position: absolute;
     background-image: url('../../../imgs/heart/Heart.png');
     background-size: cover;
-    margin-top: 415px;
+    margin-top: 635px;
 }

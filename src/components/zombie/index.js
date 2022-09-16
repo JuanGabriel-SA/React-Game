@@ -9,13 +9,15 @@ import { damageCharacter } from '../../redux/actions/DamageCharacter.actions';
 import Sounds from '../../songs/zombie/Sounds.mp3';
 import { verifyColision } from '../../utils/colisionDetection';
 import './Zombie.css';
-
-const Zombie = ({ onDeath, onAttack, id, isAttacking }) => {
-    const [positionX, setPositionX] = useState(generatePosition());
+const Zombie = ({ onDeath, onAttack, isAttacking }) => {
+    const [x, setX] = useState(generatePosition());
+    const [y, setY] = useState(0);
+    const [position, setPosition] = useState({ x: x, y: 0 })
     const [walking, setWalking] = useState(true);
     const [attack, setAttack] = useState(false);
     const [rotate, setRotate] = useState('0deg');
-    const [life, setLife] = useState(5);
+    const [life, setLife] = useState(30);
+    const [isDamaged, setIsDamaged] = useState(false);
     const [dead, setDead] = useState(false);
     const [playSound, { stop }] = useSound(Sounds, {
         volume: 0.1,
@@ -27,93 +29,127 @@ const Zombie = ({ onDeath, onAttack, id, isAttacking }) => {
     });
     const dispatch = useDispatch();
     const state = useSelector((state) => state);
+
     useEffect(() => {
-    }, [])
+        if (verifyDamage()) {
+            setWalking(false);
+            setIsDamaged(true);
+            takeDamage();
+        } else {
+            setTimeout(() => {
+                setWalking(true);
+            }, 1000)
+            setIsDamaged(false);
+        }
+    }, [state.characterAttack, rotate])
+
+    function verifyDamage() {
+        if (state.characterAttack.isAttacking && life > 0) {
+            let characterRotation = state.characterPosition.rotation;
+            //O ataque especial vai atingir o inimigo independente da posição dele...
+            if (state.characterAttack.type == 'special')
+                return true;
+            else
+                return (verifyColision(state.characterPosition, position, 200, 180)
+                    && life > 0
+                    && characterRotation != rotate)
+        }
+    }
+
+    function takeDamage() {
+        let attackType = state.characterAttack.type;
+        let damage = 0;
+        playSound({ id: 'hurt' });
+        switch (attackType) {
+            case 'light':
+                damage = 1;
+                break;
+            case 'heavy':
+                damage = 2
+                break;
+            case 'dash':
+                damage = 1
+                break;
+            case 'special':
+                damage = 20;
+                break;
+        }
+
+        setLife(prevState => prevState - damage);
+    }
 
     function generatePosition() {
         let position = Math.floor(Math.random() * 2) + 1;
 
         if (position == 1)
-            return -680;
+            return 170;
         else
-            return 680;
+            return 1260;
     }
 
     useEffect(() => {
-        if (walking) {
-
+        if (walking && !state.specialAttack) {
             const enemyWalk = setInterval(() => {
                 //O inimigo ira perseguir o personagem...
-                if (positionX < state.characterPosition)
-                    setPositionX(prevState => prevState + 1);
+                if (x < state.characterPosition.x)
+                    setX(prevState => prevState + 2);
                 else
-                    setPositionX(prevState => prevState - 1);
+                    setX(prevState => prevState - 2);
 
             }, 10)
             return () => clearInterval(enemyWalk)
         }
-    }, [walking]);
+    }, [walking, state.characterPosition, state.specialAttack]);
 
     useEffect(() => {
-        isAttacking(attack);
-
-    }, [attack])
-
-    useEffect(() => {
-        if (positionX < state.characterPosition)
+        if (x < state.characterPosition.x && !state.specialAttack && life > 0)
             setRotate('0deg')
-        else
+        if (x > state.characterPosition.x && !state.specialAttack && life > 0)
             setRotate('180deg')
 
-        //Quando o inimigo encostar no personagem, ele para...
-        if (verifyColision(state.characterPosition, positionX, 46, rotate) && life > 0) {
+        //Quando o inimigo encostar no personagem, ele para e ataca...
+        let colisionMarginX = 0;
+        if (verifyColision(position, state.characterPosition, 80, 80) && life > 0 && !state.specialAttack) {
             setAttack(true);
             onAttack !== undefined && onAttack();
             setWalking(false);
         } else {
-            setAttack(false);
+            if (life > 0) {
+                setWalking(true);
+                setAttack(false);
+            }
 
         }
-    }, [positionX, state.characterPosition, life]);
+    }, [position, state.characterPosition, life, state.specialAttack]);
 
     useEffect(() => {
+        isAttacking(attack);
         if (attack && life > 0)
             dispatch(damageCharacter(true));
         else
             dispatch(damageCharacter(false));
     }, [attack])
 
-    useEffect(() => {
-        if (isDamaged()) {
-            stop();
-            playSound({ id: 'hurt' });
-            setWalking(false);
-            let attack = { ...state.characterAttack };
-            if (attack.type == 'light')
-                setLife(prevState => prevState - 1);
-            if (attack.type == 'heavy')
-                setLife(prevState => prevState - 2)
-        } else {
-            setWalking(true);
-        }
-    }, [attack, state.characterAttack])
 
 
     useEffect(() => {
         if (life <= 0) {
-            stop();
+            setWalking(false)
             playSound({ id: 'death' });
         }
     }, [life])
 
     useEffect(() => {
-        if (dead)
-            onDeath()
+        if (dead) {
+            setWalking(false);
+            onDeath();
+        }
     }, [dead])
 
-    function isDamaged() {
-        return verifyColision(state.characterPosition, positionX, 166) && state.characterAttack && life > 0;
-    }
+    useEffect(() => {
+        setPosition({ x: x, y: y });
+
+    }, [x, y])
     //Alterna entre os sprites de acordo com a ação...
     function animateSprite() {
         if (life <= 0) {
@@ -123,10 +159,10 @@ const Zombie = ({ onDeath, onAttack, id, isAttacking }) => {
             return {
                 backgroundImage: 'url(' + DeathSprite + ')',
                 animation: 'death 0.7s steps(6)',
-
+    
             }
         } else {
-            if (isDamaged()) {
+            if (isDamaged) {
                 return {
                     backgroundImage: 'url(' + HurtSprite + ')',
                     animation: 'hurt 0.2s steps(2) infinite',
@@ -148,24 +184,16 @@ const Zombie = ({ onDeath, onAttack, id, isAttacking }) => {
 
     return (
         !dead &&
-        <div className='zombie-body' style={{
-            transform: `translate(${positionX}px) rotateY(${rotate})`,
-        }}>
-            <div className='health-zombie'
-                style={{
-                    width: life > 0 ? (life * 10): 0
-                }}
-            />
-            <div
-                className="zombie-content"
-                style={{
-                    width: 90,
-                    height: 90,
-                    ...animateSprite()
-                }}>
-            </div>
+        <div
+            className="zombie"
+            style={{
+                width: 90,
+                height: 90,
+                transform: `translate(${x}px) rotateY(${rotate})`,
+                ...animateSprite()
+            }}>
         </div>
     )
-}
 
+}
 export default Zombie;

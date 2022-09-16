@@ -144,6 +144,7 @@ const Boss = ({ onDeath, onAttack, isAttacking }) => {
 
     useEffect(() => {
         setPosition({ x: x, y: y });
+
     }, [x, y])
     //Alterna entre os sprites de acordo com a ação...
     function animateSprite() {

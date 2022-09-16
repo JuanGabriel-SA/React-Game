@@ -168,6 +168,7 @@ function App() {
       </div>
       {/* Especial */}
       <Character damage={damage} onDamage={() => setLife(prevState => prevState - 1)} />
+      {/* {currentEnemy} */}
       {/* <Boss isAttacking={(e) => setDamage(e)} onDeath={() => setEnemyCount(prevState => prevState + 1)} /> */}
       <motion.h1
         initial={{ opacity: 0 }}

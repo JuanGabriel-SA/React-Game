@@ -1,17 +1,12 @@
-.zombie-body {
-    position: absolute;
-    background-size: cover;
-    bottom: 45px;
-}
-.zombie-content {
+.zombie {
+    position: fixed;
+    margin-top: 690px;
+    position: fixed;
+    right: 1540px;
+    z-index: 2;
     background-size: cover;
 }
 
-.health-zombie {
-    background-color: rgb(167, 0, 0);
-    height: 5px;
-    margin-left: 15px;
-}
 
 @keyframes walk {
     0% {

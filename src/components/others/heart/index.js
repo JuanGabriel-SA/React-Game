@@ -35,8 +35,8 @@ const Heart = ({ onConsume }) => {
 
     useEffect(() => {
         let position = {x: positionX, y: 0};
-    
-        if (verifyColision(position, state.characterPosition, 80, 80)) {
+        console.log(position, state.characterPosition)
+        if (verifyColision(position, state.characterPosition, 50, 80)) {
             setColision(true);
         }
     }, [state.characterPosition])

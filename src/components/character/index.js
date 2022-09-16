@@ -63,7 +63,7 @@ const Character = ({ onDamage, damage }) => {
 
     useEffect(() => {
         window.onkeydown = ((e) => {
-            console.log(stamina)
+
             if (e.key == 'ArrowLeft' && !state.specialAttack) {
                 setRotate('180deg');
                 setMoveLeft(true);
