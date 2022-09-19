@@ -8,6 +8,7 @@ import WalkSprite from '../../imgs/zombie/Walk.png';
 import { damageCharacter } from '../../redux/actions/DamageCharacter.actions';
 import Sounds from '../../songs/zombie/Sounds.mp3';
 import { verifyColision } from '../../utils/colisionDetection';
+import DamageCountEffect from '../effects/DamageCountEffect';
 import './Zombie.css';
 const Zombie = ({ onDeath, onAttack, isAttacking }) => {
     const [x, setX] = useState(generatePosition());
@@ -16,24 +17,27 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
     const [walking, setWalking] = useState(true);
     const [attack, setAttack] = useState(false);
     const [rotate, setRotate] = useState('0deg');
-    const [life, setLife] = useState(30);
+    const [life, setLife] = useState(5);
     const [isDamaged, setIsDamaged] = useState(false);
+    const [damageCount, setDamageCount] = useState(0);
     const [dead, setDead] = useState(false);
+    const [critical, setCritical] = useState(false);
     const [playSound, { stop }] = useSound(Sounds, {
         volume: 0.1,
         sprite: {
-            hurt: [513, 898],
-            walk: [2832, 3138],
-            death: [9216, 9881]
+            hurt: [0, 430],
+            criticalHurt: [611, 1600],
+            walk: [2607, 300],
+            death: [8962, 2000]
         }
     });
     const dispatch = useDispatch();
     const state = useSelector((state) => state);
 
+
     useEffect(() => {
         if (verifyDamage()) {
             setWalking(false);
-            setIsDamaged(true);
             takeDamage();
         } else {
             setTimeout(() => {
@@ -41,16 +45,23 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
             }, 1000)
             setIsDamaged(false);
         }
-    }, [state.characterAttack, rotate])
+    }, [state.characterAttack, rotate, critical])
 
     function verifyDamage() {
         if (state.characterAttack.isAttacking && life > 0) {
             let characterRotation = state.characterPosition.rotation;
+            let colisionMarginX = 0;
+            let attackType = state.characterAttack.type;
+            //O attack de dash tem um range muito maior...
+            if (attackType == 'dash')
+                colisionMarginX = 600
+            else
+                colisionMarginX = 200;
             //O ataque especial vai atingir o inimigo independente da posição dele...
             if (state.characterAttack.type == 'special')
                 return true;
             else
-                return (verifyColision(state.characterPosition, position, 200, 180)
+                return (verifyColision(state.characterPosition, position, colisionMarginX, 180)
                     && life > 0
                     && characterRotation != rotate)
         }
@@ -59,6 +70,7 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
     function takeDamage() {
         let attackType = state.characterAttack.type;
         let damage = 0;
+        setIsDamaged(true);
         playSound({ id: 'hurt' });
         switch (attackType) {
             case 'light':
@@ -68,15 +80,25 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
                 damage = 2
                 break;
             case 'dash':
-                damage = 1
+                damage = 3
                 break;
             case 'special':
                 damage = 20;
                 break;
         }
+        if (critical) {
+            stop();
+            playSound({ id: 'criticalHurt' })
+            damage = damage * 2;
+        }
 
         setLife(prevState => prevState - damage);
+        setDamageCount(damage);
     }
+
+    useEffect(() => {
+        console.log(critical)
+    }, [critical])
 
     function generatePosition() {
         let position = Math.floor(Math.random() * 2) + 1;
@@ -107,9 +129,9 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
         if (x > state.characterPosition.x && !state.specialAttack && life > 0)
             setRotate('180deg')
 
+        let attackType = state.characterAttack.type;
         //Quando o inimigo encostar no personagem, ele para e ataca...
-        let colisionMarginX = 0;
-        if (verifyColision(position, state.characterPosition, 80, 80) && life > 0 && !state.specialAttack) {
+        if (verifyColision(position, state.characterPosition, 80, 80) && life > 0 && !state.specialAttack && attackType !== 'dash') {
             setAttack(true);
             onAttack !== undefined && onAttack();
             setWalking(false);
@@ -120,7 +142,7 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
             }
 
         }
-    }, [position, state.characterPosition, life, state.specialAttack]);
+    }, [position, state.characterPosition, life, state.specialAttack, state.characterAttack]);
 
     useEffect(() => {
         isAttacking(attack);
@@ -129,8 +151,6 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
         else
             dispatch(damageCharacter(false));
     }, [attack])
-
-
 
     useEffect(() => {
         if (life <= 0) {
@@ -159,7 +179,7 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
             return {
                 backgroundImage: 'url(' + DeathSprite + ')',
                 animation: 'death 0.7s steps(6)',
-    
+
             }
         } else {
             if (isDamaged) {
@@ -182,16 +202,41 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
         }
     }
 
+    useEffect(() => {
+        let aux = state.characterAttack.critical;
+        if (aux) {
+            setCritical(true);
+        } else {
+            setCritical(false);
+        }
+    }, [state.characterAttack])
+
+    useEffect(() => {
+
+    }, [critical])
+
     return (
         !dead &&
         <div
-            className="zombie"
+            className="zombie-body"
             style={{
-                width: 90,
-                height: 90,
-                transform: `translate(${x}px) rotateY(${rotate})`,
-                ...animateSprite()
+                transform: `translate(${x}px)`,
             }}>
+            <div className='health-zombie'
+                style={{
+                    width: life > 0 ? (life * 10) : 0,
+                    display: life <= 0 && 'none'
+                }}
+            />
+            {isDamaged && <DamageCountEffect damage={damageCount} trigger={isDamaged} onCritical={critical} />}
+            <div
+                className="zombie-content"
+                style={{
+                    width: 90,
+                    height: 90,
+                    transform: `rotateY(${rotate})`,
+                    ...animateSprite(),
+                }}></div>
         </div>
     )
 

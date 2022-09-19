@@ -51,7 +51,7 @@ const Character = ({ onDamage, damage }) => {
             specialAttackEnd: [3849, 3000],
             jump: [10970, 800],
             air: [11709, 3000],
-            fall: [17399, 800]
+            fall: [17399, 400]
 
         }
     });
@@ -231,12 +231,22 @@ const Character = ({ onDamage, damage }) => {
         }
     }
 
+    function isCritical() {
+        let randomNumber = Math.floor(Math.random() * 2);
+
+        return randomNumber == 0;
+    }
+
     useEffect(() => {
         setWalking(false);
         if (lightAttack && !heavyAttack && !isDashing) {
             loseStamina(25);
-            dispatch(characterIsAttacking({ isAttacking: true, type: 'light' }));
             playSound({ id: 'lightAttack' })
+            if (isCritical()) 
+                dispatch(characterIsAttacking({ isAttacking: true, type: 'light', critical: true }));
+            else 
+                dispatch(characterIsAttacking({ isAttacking: true, type: 'light', critical: false }));
+        
             setTimeout(() => {
                 setLightAttack(false);
                 dispatch(characterIsNotAttacking())
@@ -248,6 +258,7 @@ const Character = ({ onDamage, damage }) => {
 
     useEffect(() => {
         //console.log(state.characterAttack)
+     
     }, [state.characterAttack])
 
     useEffect(() => {
@@ -267,7 +278,7 @@ const Character = ({ onDamage, damage }) => {
     }, [heavyAttack])
 
     function loseStamina(value) {
-       
+
         if (stamina - value > 0)
             dispatch(consumeStamina(value));
     }
@@ -323,7 +334,7 @@ const Character = ({ onDamage, damage }) => {
     useEffect(() => {
         setPosition({ x: x, y: y, rotation: rotate });
         let screenWidth = viewSize.width;
-      
+
         if (x > screenWidth - 200) {
             setX(prevState => prevState - 1)
         }

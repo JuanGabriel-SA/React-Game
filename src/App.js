@@ -50,7 +50,10 @@ function App() {
     let aux = [...currentEnemy];
     if (enemyCount < 3) {
       //Cria 3 zumbis
-      aux.push(<Zumbi isAttacking={(e) => setDamage(e)} onDeath={() => setEnemyCount(prevState => prevState + 1)} />)
+      aux.push(<Zumbi isAttacking={(e) => setDamage(e)} onDeath={() => {
+        setDamage(false);
+        setEnemyCount(prevState => prevState + 1);
+      }} />)
       setCurrentEnemy(aux)
     }
 
@@ -97,6 +100,7 @@ function App() {
           Saúde
         </div>
         <div className='life-bar-out' />
+        <div className='life-bar-background' />
         <div className='life-bar-in' style={{
           width: life * 27.1
         }} />
@@ -168,7 +172,7 @@ function App() {
       </div>
       {/* Especial */}
       <Character damage={damage} onDamage={() => setLife(prevState => prevState - 1)} />
-      {/* {currentEnemy} */}
+      {currentEnemy}
       {/* <Boss isAttacking={(e) => setDamage(e)} onDeath={() => setEnemyCount(prevState => prevState + 1)} /> */}
       <motion.h1
         initial={{ opacity: 0 }}

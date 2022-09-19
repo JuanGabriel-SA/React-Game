@@ -126,6 +126,7 @@
   background-size: cover;
 }
 
+
 .life-bar {
   width: 550px;
   position: fixed;
@@ -142,15 +143,22 @@
   height: 22px;
   margin-left: 2px;
   margin-top: 2px;
-  background: linear-gradient(90deg, rgba(180,0,0,1) 0%, rgba(157,19,45,1) 100%);
+  background: linear-gradient(90deg, rgba(180,0,0,1) 0%, rgb(121, 15, 35) 100%);
   transition: ease-out 0.2s;
 }
 
-.life-bar-out {
+.life-bar-background {
   z-index: 2;
   position: fixed;
   width: 276px;
   height: 27px;
   background-image: url('./imgs/UI/Lifebar.png');
   background-repeat: no-repeat;
+}
+.life-bar-out {
+  z-index: 1;
+  position: fixed;
+  width: 273px;
+  height: 24px;
+  background-color: rgba(183, 0, 0, 0.312);
 }
