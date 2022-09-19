@@ -48,16 +48,21 @@ function App() {
 
   useEffect(() => {
     let aux = [...currentEnemy];
-    if (enemyCount < 3) {
+    if (enemyCount < 999) {
       //Cria 3 zumbis
       aux.push(<Zumbi isAttacking={(e) => setDamage(e)} onDeath={() => {
         setDamage(false);
-        setEnemyCount(prevState => prevState + 1);
       }} />)
       setCurrentEnemy(aux)
     }
 
   }, [enemyCount])
+
+  useEffect(() => {
+    setInterval(() => {
+      setEnemyCount(prevState => prevState + 1)
+    }, 3000)
+  }, [])
 
   function getHearts() {
     let aux = [];
@@ -108,7 +113,7 @@ function App() {
       {/* Lifebar */}
 
       {/* Stamina */}
-      <div className='vigor-bar'>
+      <div className='vigor-bar' style={{ opacity: state.specialAttack ? 0.4 : 1 }}x>
         <div className='vigor-bar-text'>
           Vigor
         </div>

@@ -29,7 +29,8 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
             criticalHurt: [611, 1600],
             walk: [2607, 300],
             death: [8962, 2000]
-        }
+        },
+        interrupt: false
     });
     const dispatch = useDispatch();
     const state = useSelector((state) => state);
@@ -71,6 +72,7 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
         let attackType = state.characterAttack.type;
         let damage = 0;
         setIsDamaged(true);
+        stop();
         playSound({ id: 'hurt' });
         switch (attackType) {
             case 'light':
@@ -97,16 +99,16 @@ const Zombie = ({ onDeath, onAttack, isAttacking }) => {
     }
 
     useEffect(() => {
-        console.log(critical)
+
     }, [critical])
 
     function generatePosition() {
         let position = Math.floor(Math.random() * 2) + 1;
 
         if (position == 1)
-            return 170;
+            return -200;
         else
-            return 1260;
+            return 1730;
     }
 
     useEffect(() => {

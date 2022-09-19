@@ -360,6 +360,7 @@ const Character = ({ onDamage, damage }) => {
 
     useEffect(() => {
         dispatch(moveCharacter(position));
+        console.log(position)
     }, [position])
 
     function animateCharacter() {
