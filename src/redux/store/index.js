@@ -4,6 +4,7 @@ import CharacterAttackReducer from "../reducers/CharacterAttack.reducer";
 import CharacterPositionReducer from "../reducers/CharacterPosition.reducer";
 import CharacterStaminaReducer from "../reducers/CharacterStamina.reducer";
 import DamageCharacterReducer from "../reducers/DamageCharacter.reducer";
+import EnemiesControlReducer from "../reducers/EnemiesControl.reducer";
 import SpecialAttackReducer from "../reducers/SpecialAttack.reducer";
 
 const rootReducer = combineReducers({
@@ -11,7 +12,8 @@ const rootReducer = combineReducers({
     characterDamaged: DamageCharacterReducer,
     characterAttack: CharacterAttackReducer,
     specialAttack: SpecialAttackReducer,
-    characterStamina: CharacterStaminaReducer
+    characterStamina: CharacterStaminaReducer,
+    enemiesControl: EnemiesControlReducer
 })
 
 const store = configureStore({reducer: rootReducer});

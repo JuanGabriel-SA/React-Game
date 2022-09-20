@@ -1,0 +1,61 @@
+.skeleton-body {
+    position: fixed;
+    margin-top: 685px;
+    position: fixed;
+    right: 1540px;
+    z-index: 2;
+   
+}
+.skeleton-content {
+     background-image: url('../../imgs/skeleton/Sprite2.png');
+}
+.health-skeleton {
+    position: absolute;
+    background-color: rgb(167, 0, 0);
+    height: 5px;
+    margin-left: 35px;
+    border: 1px solid white;
+}
+
+@keyframes skeletonWalk {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: -1536px;
+    }
+}
+
+@keyframes skeletonAttack {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: -1666px;
+    }
+}
+
+@keyframes skeletonHurt {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: -384px;
+    }
+}
+
+@keyframes skeletonDeath {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: -1664px;
+    }
+}
+
+
+

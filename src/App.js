@@ -5,6 +5,7 @@ import useSound from 'use-sound';
 import './App.css';
 import Character from './components/character';
 import Heart from './components/others/heart';
+import Wizard from './components/skeleton';
 import Zumbi from './components/zombie';
 import GeralSounds from './songs/others/stamina/Danger.wav';
 
@@ -15,6 +16,7 @@ function App() {
   const [life, setLife] = useState(10);
   const [currentEnemy, setCurrentEnemy] = useState([]);
   const [specialCount, setSpecialCount] = useState(0);
+  const [allEnemies, setAllEnemies] = useState([]);
   const animateSpecialIcon = useAnimation();
   const dispatch = useDispatch();
   const state = useSelector((state) => state);
@@ -50,18 +52,20 @@ function App() {
     let aux = [...currentEnemy];
     if (enemyCount < 999) {
       //Cria 3 zumbis
-      aux.push(<Zumbi isAttacking={(e) => setDamage(e)} onDeath={() => {
-        setDamage(false);
-      }} />)
+      aux.push(<Zumbi id={enemyCount} />)
       setCurrentEnemy(aux)
     }
 
   }, [enemyCount])
 
   useEffect(() => {
+
+  }, [allEnemies])
+
+  useEffect(() => {
     setInterval(() => {
       setEnemyCount(prevState => prevState + 1)
-    }, 3000)
+    }, 2000)
   }, [])
 
   function getHearts() {
@@ -113,7 +117,7 @@ function App() {
       {/* Lifebar */}
 
       {/* Stamina */}
-      <div className='vigor-bar' style={{ opacity: state.specialAttack ? 0.4 : 1 }}x>
+      <div className='vigor-bar' style={{ opacity: state.specialAttack ? 0.4 : 1 }} x>
         <div className='vigor-bar-text'>
           Vigor
         </div>
@@ -176,8 +180,9 @@ function App() {
         }
       </div>
       {/* Especial */}
-      <Character damage={damage} onDamage={() => setLife(prevState => prevState - 1)} />
-      {currentEnemy}
+      <Character onDamage={() => setLife(prevState => prevState - 1)} />
+      <Wizard />
+      {/* {currentEnemy} */}
       {/* <Boss isAttacking={(e) => setDamage(e)} onDeath={() => setEnemyCount(prevState => prevState + 1)} /> */}
       <motion.h1
         initial={{ opacity: 0 }}

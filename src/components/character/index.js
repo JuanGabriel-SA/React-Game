@@ -16,6 +16,7 @@ import { moveCharacter } from '../../redux/actions/CharacterPosition.actions';
 import { consumeStamina, resetStamina } from '../../redux/actions/CharacterStamina.actions';
 import { specialAttackEffects } from '../../redux/actions/SpecialAttack.actions';
 import Sounds from '../../songs/character/Sounds.mp3';
+import { verifyColision } from '../../utils/colisionDetection';
 import { getRandom } from '../../utils/getRandom';
 import useWindowDimensions from '../../utils/getWindowSize';
 import './Character.css';
@@ -36,6 +37,7 @@ const Character = ({ onDamage, damage }) => {
     const [jumping, setJumping] = useState(false);
     const [fall, setFall] = useState(false);
     const [effectPosition, setEffectPosition] = useState(0);
+    const [isDamaged, setIsDamaged] = useState(false);
     const viewSize = useWindowDimensions();
     const dispatch = useDispatch();
     const [playSound, { stop }] = useSound(Sounds, {
@@ -242,11 +244,11 @@ const Character = ({ onDamage, damage }) => {
         if (lightAttack && !heavyAttack && !isDashing) {
             loseStamina(25);
             playSound({ id: 'lightAttack' })
-            if (isCritical()) 
+            if (isCritical())
                 dispatch(characterIsAttacking({ isAttacking: true, type: 'light', critical: true }));
-            else 
+            else
                 dispatch(characterIsAttacking({ isAttacking: true, type: 'light', critical: false }));
-        
+
             setTimeout(() => {
                 setLightAttack(false);
                 dispatch(characterIsNotAttacking())
@@ -258,7 +260,7 @@ const Character = ({ onDamage, damage }) => {
 
     useEffect(() => {
         //console.log(state.characterAttack)
-     
+
     }, [state.characterAttack])
 
     useEffect(() => {
@@ -319,7 +321,7 @@ const Character = ({ onDamage, damage }) => {
     }, [moveLeft, moveRight, lightAttack, heavyAttack, isDashing, state.specialAttack])
 
     useEffect(() => {
-        if (damage) {
+        if (isDamaged) {
             playSound({ id: 'hurt' })
             onDamage();
             const damagedSound = setInterval(() => {
@@ -329,7 +331,26 @@ const Character = ({ onDamage, damage }) => {
 
             return () => clearInterval(damagedSound)
         }
-    }, [damage])
+    }, [isDamaged])
+
+    useEffect(() => {
+        verifyDamage();
+    }, [state.enemiesControl])
+
+    function verifyDamage() {
+        let allEnemies = [...state.enemiesControl];
+        if (allEnemies.length > 0 && allEnemies != undefined) {
+            let damaged = false;
+            allEnemies.forEach(item => {
+                if (verifyColision(item.position, position, 80, 80) && item.life > 0 && !specialAttack && !isDashing) {
+                    console.log(item)
+                    damaged = true;
+                }
+            });
+
+            setIsDamaged(damaged);
+        }
+    }
 
     useEffect(() => {
         setPosition({ x: x, y: y, rotation: rotate });
@@ -360,7 +381,6 @@ const Character = ({ onDamage, damage }) => {
 
     useEffect(() => {
         dispatch(moveCharacter(position));
-        console.log(position)
     }, [position])
 
     function animateCharacter() {
@@ -376,7 +396,7 @@ const Character = ({ onDamage, damage }) => {
                 animation: 'characterSpecialAttack 0.2s steps(12) infinite',
             }
         }
-        if (damage) {
+        if (isDamaged) {
             return {
                 backgroundImage: 'url(' + HurtSprite + ')',
                 animation: 'characterHurt 0.2s steps(4) infinite',

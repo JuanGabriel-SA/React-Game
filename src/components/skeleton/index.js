@@ -1,25 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import useSound from 'use-sound';
-import AttackSprite from '../../imgs/zombie/Attack.png';
-import DeathSprite from '../../imgs/zombie/Death.png';
-import HurtSprite from '../../imgs/zombie/Hurt.png';
-import WalkSprite from '../../imgs/zombie/Walk.png';
-import { damageCharacter } from '../../redux/actions/DamageCharacter.actions';
 import { addEnemy, editEnemy, removeEnemy } from '../../redux/actions/EnemiesControl.actions';
 import Sounds from '../../songs/zombie/Sounds.mp3';
 import { verifyColision } from '../../utils/colisionDetection';
 import getItem from '../../utils/getItem';
 import DamageCountEffect from '../effects/DamageCountEffect';
-import './Zombie.css';
-const Zombie = ({ onDeath, onAttack, isAttacking, id, allEnemies, setAllEnemies }) => {
+import './Skeleton.css';
+const Skeleton = ({ onDeath, onAttack, id }) => {
     const [x, setX] = useState(0);
     const [y, setY] = useState(0);
     const [position, setPosition] = useState({ x: 2000, y: 0 })
     const [walking, setWalking] = useState(true);
     const [attack, setAttack] = useState(false);
     const [rotate, setRotate] = useState('0deg');
-    const [life, setLife] = useState(5);
+    const [life, setLife] = useState(30);
     const [isDamaged, setIsDamaged] = useState(false);
     const [damageCount, setDamageCount] = useState(0);
     const [dead, setDead] = useState(false);
@@ -144,13 +139,6 @@ const Zombie = ({ onDeath, onAttack, isAttacking, id, allEnemies, setAllEnemies 
         }
     }, [position, state.characterPosition, life, state.specialAttack, state.characterAttack]);
 
-    useEffect(() => {
-        isAttacking(attack);
-        if (attack && life > 0)
-            dispatch(damageCharacter(true));
-        else
-            dispatch(damageCharacter(false));
-    }, [attack])
 
     useEffect(() => {
         if (life <= 0) {
@@ -162,7 +150,7 @@ const Zombie = ({ onDeath, onAttack, isAttacking, id, allEnemies, setAllEnemies 
     useEffect(() => {
         if (dead) {
             setWalking(false);
-            onDeath();
+            onDeath != undefined && onDeath();
         }
     }, [dead])
 
@@ -208,28 +196,34 @@ const Zombie = ({ onDeath, onAttack, isAttacking, id, allEnemies, setAllEnemies 
         if (life <= 0) {
             setTimeout(() => {
                 setDead(true);
-            }, 600)
+            }, 1800)
             return {
-                backgroundImage: 'url(' + DeathSprite + ')',
-                animation: 'death 0.7s steps(6)',
+                animation: 'skeletonDeath 1.8s steps(13)',
+                backgroundPositionY: '25%',
 
             }
         } else {
+            if (state.specialAttack) {
+                return {
+                    animation: 'bossStopped 1.5s steps(5) infinite',
+                    backgroundPositionY: '0%',
+                }
+            }
             if (isDamaged) {
                 return {
-                    backgroundImage: 'url(' + HurtSprite + ')',
-                    animation: 'hurt 0.2s steps(2) infinite',
+                    animation: 'skeletonHurt 0.5s steps(3)',
+                    backgroundPositionY: '100%',
                 }
             }
             if (attack) {
                 return {
-                    backgroundImage: 'url(' + AttackSprite + ')',
-                    animation: 'attack 0.5s steps(6) infinite',
+                    animation: 'skeletonAttack 0.8s steps(13) infinite',
+                    backgroundPositionY: '0%',
                 }
             } else {
                 return {
-                    backgroundImage: 'url(' + WalkSprite + ')',
-                    animation: 'walk 0.7s steps(6) infinite',
+                    backgroundPositionY: '50%',
+                    animation: 'skeletonWalk 0.7s steps(12) infinite',
                 }
             }
         }
@@ -247,11 +241,11 @@ const Zombie = ({ onDeath, onAttack, isAttacking, id, allEnemies, setAllEnemies 
     return (
         !dead &&
         <div
-            className="zombie-body"
+            className="skeleton-body"
             style={{
                 transform: `translate(${x}px)`,
             }}>
-            <div className='health-zombie'
+            <div className='health-skeleton'
                 style={{
                     width: life > 0 ? (life * 10) : 0,
                     display: life <= 0 && 'none'
@@ -259,10 +253,10 @@ const Zombie = ({ onDeath, onAttack, isAttacking, id, allEnemies, setAllEnemies 
             />
             {isDamaged && <DamageCountEffect damage={damageCount} trigger={isDamaged} onCritical={critical} />}
             <div
-                className="zombie-content"
+                className="skeleton-content"
                 style={{
-                    width: 90,
-                    height: 90,
+                    width: 128,
+                    height: 128,
                     transform: `rotateY(${rotate})`,
                     ...animateSprite(),
                 }}></div>
@@ -270,4 +264,4 @@ const Zombie = ({ onDeath, onAttack, isAttacking, id, allEnemies, setAllEnemies 
     )
 
 }
-export default Zombie;
+export default Skeleton;
